@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const AlreadyExistsError = require('../utils/customErrors/AlreadyExistsError');
 const NotFoundError = require('../utils/customErrors/NotFoundError');
+const { alreadyExistsUser, userNotFound } = require('../utils/errorMessages');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -20,7 +21,7 @@ module.exports.createUser = (req, res, next) => {
       }))
       .catch((err) => {
         if (err.code === 11000) {
-          next(new AlreadyExistsError('Пользователь с таким email уже зарегистрирован'));
+          next(new AlreadyExistsError(alreadyExistsUser));
         } else {
           next(err);
         }
@@ -32,7 +33,7 @@ module.exports.updateProfile = (req, res, next) => {
     req.user._id,
     { name: req.body.name, email: req.body.email },
     { new: true, runValidators: true, upsert: false },
-  ).orFail(() => { throw new NotFoundError('Пользователь по указанному _id не найден'); })
+  ).orFail(() => { throw new NotFoundError(userNotFound); })
     .then((answer) => {
       const {
         _id, name, email,
@@ -66,7 +67,7 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.getCurrentUserInfo = (req, res, next) => {
-  User.findById(req.user._id).orFail(() => { throw new NotFoundError('Пользователь по указанному _id не найден'); })
+  User.findById(req.user._id).orFail(() => { throw new NotFoundError(userNotFound); })
     .then(({
       _id, name, email,
     }) => {
