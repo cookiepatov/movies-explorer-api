@@ -17,10 +17,10 @@ const createMovieValidation = {
     thumbnail: Joi.string().required().regex(urlRegexp),
     country: Joi.string().required().min(2).max(100),
     director: Joi.string().required().min(2).max(100),
-    duration: Joi.number().required().min(2).max(100),
+    duration: Joi.number().required().min(1),
     year: Joi.string().required().min(2).max(10),
     description: Joi.string().required().min(2).max(1000),
-    movieId: Joi.string().required(),
+    movieId: Joi.number().required(),
   }),
 };
 

@@ -3,13 +3,16 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { celebrate } = require('celebrate');
+const helmet = require('helmet');
+
 require('dotenv').config();
 
-const celebrateErrorHandler = require('./middlewares/celebrateErrorHandler');
-const errorHandler = require('./middlewares/errorHandler');
-const { requestLogger, errorLogger } = require('./middlewares/logger');
-const auth = require('./middlewares/auth');
-const cors = require('./middlewares/cors');
+const {
+  auth, cors, errorHandler, logger, celebrateErrorHandler, rateLimiter,
+} = require('./middlewares');
+
+const { requestLogger, errorLogger } = logger;
+const { users, movies } = require('./routes');
 
 const { login, createUser } = require('./controllers/users');
 
@@ -18,6 +21,8 @@ const { loginValidation, createUserValidation } = require('./utils/serverValidat
 
 const { PORT = 3001 } = process.env;
 const app = express();
+
+app.use(rateLimiter);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -34,17 +39,13 @@ app.use(cors);
 
 app.use(requestLogger);
 
-app.get('/crash-test', () => {
-  setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
-  }, 0);
-});
+app.use(helmet());
 
 app.post('/signin', celebrate(loginValidation), login);
 app.post('/signup', celebrate(createUserValidation), createUser);
 
-app.use('/users', auth, require('./routes/users'));
-app.use('/movies', auth, require('./routes/movies'));
+app.use('/users', auth, users);
+app.use('/movies', auth, movies);
 
 app.use(() => {
   throw new NotFoundError('Такой страницы не существует');

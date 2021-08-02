@@ -1,6 +1,5 @@
 const Movie = require('../models/movie');
-const NoRightsError = require('../utils/customErrors/NoRightsError');
-const NotFoundError = require('../utils/customErrors/NotFoundError');
+const { NoRightsError, NotFoundError } = require('../utils/customErrors');
 
 module.exports.getMovies = (req, res, next) => {
   Movie.find({})

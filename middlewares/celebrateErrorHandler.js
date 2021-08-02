@@ -1,4 +1,4 @@
-const IncorrectDataError = require('../utils/customErrors/IncorrectDataError');
+const IncorrectDataError = require('../utils/customErrors');
 
 module.exports = (err, req, res, next) => {
   if (err.message === 'celebrate request validation failed') {
