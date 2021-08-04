@@ -2,35 +2,31 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const { celebrate } = require('celebrate');
 const helmet = require('helmet');
 
 require('dotenv').config();
 
 const {
-  auth, cors, errorHandler, logger, celebrateErrorHandler, rateLimiter,
+  cors, errorHandler, logger, celebrateErrorHandler, rateLimiter,
 } = require('./middlewares');
 
 const { requestLogger, errorLogger } = logger;
-const { users, movies } = require('./routes');
+const router = require('./routes');
 
-const { login, createUser } = require('./controllers/users');
+const { defaultMongoUrl, serverStartsMes, defaultPort } = require('./utils/constants');
 
-const NotFoundError = require('./utils/customErrors/NotFoundError');
-const { notFound } = require('./utils/errorMessages');
-const { mongoUrl, serverStartsMes, defaultPort } = require('./utils/constants');
-const { loginValidation, createUserValidation } = require('./utils/serverValidation');
+const { PORT = defaultPort, MONGO_URL = defaultMongoUrl } = process.env;
 
-const { PORT = defaultPort } = process.env;
 const app = express();
 
+app.use(requestLogger);
 app.use(rateLimiter);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-mongoose.connect(mongoUrl, {
+mongoose.connect(MONGO_URL, {
   useUnifiedTopology: true,
   useNewUrlParser: true,
   useCreateIndex: true,
@@ -39,19 +35,9 @@ mongoose.connect(mongoUrl, {
 
 app.use(cors);
 
-app.use(requestLogger);
-
 app.use(helmet());
 
-app.post('/signin', celebrate(loginValidation), login);
-app.post('/signup', celebrate(createUserValidation), createUser);
-
-app.use('/users', auth, users);
-app.use('/movies', auth, movies);
-
-app.use(() => {
-  throw new NotFoundError(notFound);
-});
+app.use(router);
 
 app.use(errorLogger);
 

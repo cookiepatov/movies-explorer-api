@@ -1,6 +1,6 @@
 const { Joi } = require('celebrate');
 
-const urlRegexp = /http[s]{0,1}:\/\/(www\.){0,1}[\w\-.~:/?#[\]@!$&'()*+,;=]{5,}/i;
+const validator = require('validator');
 
 const idParamValidation = {
   params: Joi.object().keys({
@@ -12,9 +12,24 @@ const createMovieValidation = {
   body: Joi.object().keys({
     nameEN: Joi.string().required().min(2).max(100),
     nameRU: Joi.string().required().min(2).max(100),
-    image: Joi.string().required().regex(urlRegexp),
-    trailer: Joi.string().required().regex(urlRegexp),
-    thumbnail: Joi.string().required().regex(urlRegexp),
+    image: Joi.string().required().custom((value, helpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return helpers.message('Поле image заполнено некорректно');
+    }),
+    trailer: Joi.string().required().custom((value, helpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return helpers.message('Поле trailer заполнено некорректно');
+    }),
+    thumbnail: Joi.string().required().custom((value, helpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return helpers.message('Поле thumbnail заполнено некорректно');
+    }),
     country: Joi.string().required().min(2).max(100),
     director: Joi.string().required().min(2).max(100),
     duration: Joi.number().required().min(1),
@@ -28,7 +43,7 @@ const createUserValidation = {
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
-    name: Joi.string().min(2).max(30),
+    name: Joi.string().required().min(2).max(30),
   }),
 };
 

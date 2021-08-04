@@ -42,7 +42,13 @@ module.exports.updateProfile = (req, res, next) => {
         _id, name, email,
       });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new AlreadyExistsError(alreadyExistsUser));
+      } else {
+        next(err);
+      }
+    });
 };
 
 module.exports.login = (req, res, next) => {
@@ -53,14 +59,6 @@ module.exports.login = (req, res, next) => {
       const token = jwt.sign({ _id: user._id },
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
         { expiresIn: '7d' });
-      /* res
-        .cookie('jwt', token, {
-          maxAge: 3600000 * 24 * 7,
-          httpOnly: true,
-          sameSite: true,
-        })
-        .send({ message: 'Авторизация прошла успешно' }); */
-
       res.send({ token });
     })
     .catch(next);
