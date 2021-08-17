@@ -7,7 +7,7 @@ const helmet = require('helmet');
 require('dotenv').config();
 
 const {
-  /* cors,  */errorHandler, logger, celebrateErrorHandler, rateLimiter,
+  cors, errorHandler, logger, celebrateErrorHandler, rateLimiter,
 } = require('./middlewares');
 
 const { requestLogger, errorLogger } = logger;
@@ -33,7 +33,7 @@ mongoose.connect(MONGO_URL, {
   useFindAndModify: false,
 });
 
-/* app.use(cors); */
+app.use(cors);
 
 app.use(helmet());
 
