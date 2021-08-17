@@ -34,7 +34,7 @@ const createMovieValidation = {
     director: Joi.string().required().min(2).max(100),
     duration: Joi.number().required().min(1),
     year: Joi.string().required().min(2).max(10),
-    description: Joi.string().required().min(2).max(1000),
+    description: Joi.string().required().min(2).max(10000),
     movieId: Joi.number().required(),
   }),
 };
