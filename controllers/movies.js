@@ -68,11 +68,5 @@ module.exports.createMovie = (req, res, next) => {
     owner: _id,
   })
     .then((movie) => res.send({ movie }))
-    .catch((err) => {
-      if (err.code === 11000) {
-        next(new AlreadyExistsError(alreadyExistsMovie));
-      } else {
-        next(err);
-      }
-    });
+    .catch(next);
 };
