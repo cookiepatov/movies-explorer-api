@@ -5,7 +5,7 @@ const AlreadyExistsError = require('../utils/customErrors/AlreadyExistsError');
 const { cantDeleteSomebodyMovie, movieNotFound, alreadyExistsMovie } = require('../utils/errorMessages');
 
 module.exports.getMovies = (req, res, next) => {
-  Movie.find({})
+  Movie.find({ owner: req.user._id })
     .then((movies) => res.send(movies))
     .catch(next);
 };
